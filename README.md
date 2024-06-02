@@ -1,8 +1,9 @@
 
 
 # Railway Administration System
+<p align="center">
+<img width="300" height="200" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmSE0a09GPbWCpNhJQ9TySpO0r0eU3o2dEow&s" alt="Railway Administration System">
 
-![Railway Administration System](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmSE0a09GPbWCpNhJQ9TySpO0r0eU3o2dEow&s)
 
 ## Overview
 Welcome to the Railway Administration System! This project is a comprehensive railway management system implemented in Python using Streamlit and SQLite. It provides a user-friendly interface for managing various aspects of railway operations efficiently.
