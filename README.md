@@ -43,4 +43,4 @@ The application is deployed and accessible [here](https://railway-app-k3.streaml
 Contributions are welcome! Please feel free to fork the repository, make changes, and submit pull requests.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/KIRAN-KUMAR-K3/railway-administration/edit/main/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/KIRAN-KUMAR-K3/railway-administration?tab=MIT-1-ov-file#) file for details.
