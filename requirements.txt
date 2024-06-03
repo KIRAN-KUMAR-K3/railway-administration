@@ -1,4 +1,4 @@
-streamlit==0.82.0
+streamlit==1.2.0  # or the latest compatible version
 pandas==1.2.4
 setuptools>=40.0.0
 protobuf==3.20.3
@@ -20,19 +20,15 @@ jsonschema-specifications==2023.12.1
 markupsafe==2.1.5
 numpy==1.26.4
 packaging==24.0
-pandas==1.2.4
 pillow==10.3.0
-protobuf==3.20.3
 pydeck==0.9.1
 python-dateutil==2.9.0.post0
 pytz==2024.1
 referencing==0.35.1
 requests==2.32.3
 rpds-py==0.18.1
-setuptools>=40.0.0
 six==1.16.0
 smmap==5.0.1
-streamlit==0.82.0
 toml==0.10.2
 toolz==0.12.1
 tornado==6.4
