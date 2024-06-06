@@ -26,17 +26,13 @@ The application is deployed and accessible [here](https://railway-app-k3.streaml
    git clone https://github.com/KIRAN-KUMAR-K3/railway-administration.git
    ```
 
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
 
-3. **Run the Streamlit App**:
+2. **Run the Streamlit App**:
    ```bash
    streamlit run railway_system.py
    ```
 
-4. **Access the Application**:
+3. **Access the Application**:
    Open your browser and visit [http://localhost:8501](http://localhost:8501).
 
 ## Contributing
