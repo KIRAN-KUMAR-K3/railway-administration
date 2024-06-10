@@ -26,7 +26,6 @@ The application is deployed and accessible [here](https://railway-app-k3.streaml
    git clone https://github.com/KIRAN-KUMAR-K3/railway-administration.git
    ```
 
-
 2. **Run the Streamlit App**:
    ```bash
    streamlit run railway_system.py
