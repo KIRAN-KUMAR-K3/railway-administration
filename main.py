@@ -15,15 +15,21 @@ def create_DB_if_Not_available():
     c.execute('''CREATE TABLE IF NOT EXISTS trains
                 (train_number TEXT, train_name TEXT, departure_date TEXT, starting_destination TEXT, ending_destination TEXT)''')
 create_DB_if_Not_available()
-
-# Function to authenticate user# Function to authenticate user
+def register(username, password):
+    try:
+        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        conn.commit()
+        st.success("User registered successfully! You can now log in.")
+    except sqlite3.IntegrityError:
+        st.error("Username already exists. Please choose a different username.")
+    except sqlite3.OperationalError:
+        st.error("Database is locked. Please try again later.")
+        
+# Function to authenticate user
 def login(username, password):
-    # Hardcoded username and password for demonstration purposes
-    hardcoded_username = "admin"
-    hardcoded_password = "password123"
-
-    # Check if the provided username and password match the hardcoded values
-    if username == hardcoded_username and password == hardcoded_password:
+    c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+    user = c.fetchone()
+    if user:
         return True
     else:
         return False
@@ -154,18 +160,30 @@ def train_functions():
     st.title("🚆 Railway Management System")
     st.sidebar.title("🛤️ Train Administrator")
     
-    # Display login form if
-    # not authenticated
+    # Display login or registration form if not authenticated
     if not is_authenticated():
-        st.sidebar.title("Login")
-        username = st.sidebar.text_input("Username")
-        password = st.sidebar.text_input("Password", type="password")
-        if st.sidebar.button("Login"):
-            if login(username, password):
-                st.session_state['authenticated'] = True
-                st.success("Login successful")
-            else:
-                st.error("Invalid username or password")
+        auth_option = st.sidebar.selectbox("Login or Register", ["Login", "Register"])
+        
+        if auth_option == "Login":
+            st.sidebar.title("Login")
+            username = st.sidebar.text_input("Username")
+            password = st.sidebar.text_input("Password", type="password")
+            if st.sidebar.button("Login"):
+                if login(username, password):
+                    st.session_state['authenticated'] = True
+                    st.success("Login successful")
+                else:
+                    st.error("Invalid username or password")
+        
+        elif auth_option == "Register":
+            st.sidebar.title("Register")
+            new_username = st.sidebar.text_input("New Username")
+            new_password = st.sidebar.text_input("New Password", type="password")
+            if st.sidebar.button("Register"):
+                if new_username and new_password:
+                    register(new_username, new_password)
+                else:
+                    st.error("Please fill in both fields")
     
     # Add functionality for authenticated users
     else:
