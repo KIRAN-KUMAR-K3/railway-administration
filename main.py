@@ -176,7 +176,7 @@ def train_functions():
     
     # Display login or registration form if not authenticated
     if not is_authenticated():
-        auth_option = st.sidebar.selectbox("Login or Register", ["Login", "Register"])
+        auth_option = st.sidebar.radio("Login or Register", ["Login", "Register"])
         
         if auth_option == "Login":
             st.sidebar.title("Login")
