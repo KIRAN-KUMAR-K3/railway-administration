@@ -201,7 +201,7 @@ def train_functions():
     
     # Add functionality for authenticated users
     else:
-        functions = st.sidebar.selectbox("Select Train Functions", [
+        functions = st.sidebar.radio("Select Train Functions", [
             "Add Train", "View Trains", "Search Train", "Delete Train", "Book Ticket", "Cancel Ticket", "View Seats"])
         
         if functions == "Add Train":
