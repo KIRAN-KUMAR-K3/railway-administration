@@ -41,8 +41,20 @@ def is_authenticated():
 # Function to logout user
 def logout():
     st.session_state['authenticated'] = False
+
 if st.sidebar.button("Logout"):
         logout()
+
+
+from PIL import Image
+
+img = Image.open("img3.png")
+#st.image(img)
+st.sidebar.image(img,width=250)
+
+img = Image.open("img2.png")
+st.image(img,width=650)
+
 
 # Function to add a new train
 def add_train(train_number, train_name, departure_date, starting_destination, ending_destination):
@@ -287,6 +299,7 @@ def train_functions():
             if st.button("Submit"):
                 if train_number:
                     view_seats(train_number)
+                    
 
 # Run the app
 if __name__ == "__main__":
