@@ -48,11 +48,11 @@ if st.sidebar.button("Logout"):
 
 from PIL import Image
 
-img = Image.open("img3.png")
+img = Image.open("images/img3.png")
 #st.image(img)
 st.sidebar.image(img,width=250)
 
-img = Image.open("img2.png")
+img = Image.open("images/img2.png")
 st.image(img,width=650)
 
 
