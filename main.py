@@ -41,6 +41,8 @@ def is_authenticated():
 # Function to logout user
 def logout():
     st.session_state['authenticated'] = False
+if st.sidebar.button("Logout"):
+        logout()
 
 # Function to add a new train
 def add_train(train_number, train_name, departure_date, starting_destination, ending_destination):
