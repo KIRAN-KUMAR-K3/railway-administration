@@ -15,21 +15,34 @@ def create_DB_if_Not_available():
     c.execute('''CREATE TABLE IF NOT EXISTS trains
                 (train_number TEXT, train_name TEXT, departure_date TEXT, starting_destination TEXT, ending_destination TEXT)''')
 create_DB_if_Not_available()
+
 def register(username, password):
     try:
-        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-        conn.commit()
+        with conn:
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
         st.success("User registered successfully! You can now log in.")
     except sqlite3.IntegrityError:
         st.error("Username already exists. Please choose a different username.")
-    except sqlite3.OperationalError:
-        st.error("Database is locked. Please try again later.")
+    except sqlite3.OperationalError as e:
+        st.error(f"Database Error: {e}")
         
 # Function to authenticate user
 def login(username, password):
-    c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-    user = c.fetchone()
-    if user:
+    try:
+        with conn:
+            c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+            user = c.fetchone()
+            if user:
+                return True
+            else:
+                return False
+    except sqlite3.OperationalError as e:
+        st.error(f"Database Error: {e}")
+        return False
+
+# Admin login section
+def admin_login(password):
+    if password == 'admin@123':
         return True
     else:
         return False
@@ -38,14 +51,22 @@ def login(username, password):
 def is_authenticated():
     return st.session_state.get('authenticated', False)
 
+# Function to check if admin is authenticated
+def is_admin_authenticated():
+    return st.session_state.get('admin_authenticated', False)
+
 # Function to logout user
 def logout():
-    st.session_state['authenticated'] = False
+    if st.session_state.get('authenticated', False):
+        st.session_state['authenticated'] = False
+    if st.session_state.get('admin_authenticated', False):
+        st.session_state['admin_authenticated'] = False
+    st.experimental_rerun()
 
 if st.sidebar.button("Logout"):
-        logout()
+    logout()
 
-
+    
 from PIL import Image
 
 img = Image.open("images/img3.png")
@@ -174,8 +195,34 @@ def train_functions():
     st.title("🚆 Railway Management System")
     st.sidebar.title("🛤️ Train Administrator")
     
+    # Admin or User selection
+    user_type = st.sidebar.selectbox("Login as:", ["User", "Admin"])
+    
+    if user_type == "Admin":
+        st.sidebar.title("Admin Login")
+        admin_password = st.sidebar.text_input("Admin Password", type="password")
+        if st.sidebar.button("Login as Admin"):
+            if admin_login(admin_password):
+                st.session_state['admin_authenticated'] = True
+                st.success("Admin login successful")
+            else:
+                st.error("Invalid admin password")
+        
+        if st.session_state.get('admin_authenticated', False):
+            st.title("Admin Panel")
+            st.write("Database Contents:")
+            tables = c.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+            for table_name in tables:
+                st.write(f"Table: {table_name[0]}")
+                table_data = c.execute(f"SELECT * FROM {table_name[0]}").fetchall()
+                if table_data:
+                    df = pd.DataFrame(table_data)
+                    st.dataframe(df)
+                else:
+                    st.write("No data available")
+    
     # Display login or registration form if not authenticated
-    if not is_authenticated():
+    elif not is_authenticated():
         auth_option = st.sidebar.radio("Login or Register", ["Login", "Register"])
         
         if auth_option == "Login":
