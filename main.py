@@ -33,24 +33,34 @@ def login(username, password):
         return True
     else:
         return False
+
 # Admin login section
 def admin_login(password):
     if password == 'admin@123':
         return True
     else:
         return False
+
 # Function to check if user is authenticated
 def is_authenticated():
     return st.session_state.get('authenticated', False)
 
+# Function to check if admin is authenticated
+def is_admin_authenticated():
+    return st.session_state.get('admin_authenticated', False)
+
 # Function to logout user
 def logout():
-    st.session_state['authenticated'] = False
+    if st.session_state.get('authenticated', False):
+        st.session_state['authenticated'] = False
+    if st.session_state.get('admin_authenticated', False):
+        st.session_state['admin_authenticated'] = False
+    st.experimental_rerun()
 
 if st.sidebar.button("Logout"):
-        logout()
+    logout()
 
-
+    
 from PIL import Image
 
 img = Image.open("images/img3.png")
