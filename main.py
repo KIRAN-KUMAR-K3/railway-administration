@@ -15,23 +15,29 @@ def create_DB_if_Not_available():
     c.execute('''CREATE TABLE IF NOT EXISTS trains
                 (train_number TEXT, train_name TEXT, departure_date TEXT, starting_destination TEXT, ending_destination TEXT)''')
 create_DB_if_Not_available()
+
 def register(username, password):
     try:
-        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-        conn.commit()
+        with conn:
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
         st.success("User registered successfully! You can now log in.")
     except sqlite3.IntegrityError:
         st.error("Username already exists. Please choose a different username.")
-    except sqlite3.OperationalError:
-        st.error("Database is locked. Please try again later.")
+    except sqlite3.OperationalError as e:
+        st.error(f"Database Error: {e}")
         
 # Function to authenticate user
 def login(username, password):
-    c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-    user = c.fetchone()
-    if user:
-        return True
-    else:
+    try:
+        with conn:
+            c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+            user = c.fetchone()
+            if user:
+                return True
+            else:
+                return False
+    except sqlite3.OperationalError as e:
+        st.error(f"Database Error: {e}")
         return False
 
 # Admin login section
