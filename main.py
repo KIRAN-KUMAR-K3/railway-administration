@@ -168,138 +168,171 @@ def view_seats(train_number):
             st.dataframe(data=result)
     else:
         st.error(f"❌ No such Train with Number {train_number} is available")
+        
+# Admin login section
+def admin_login(password):
+    if password == 'admin@123':
+        return True
+    else:
+        return False
 
+# Main function for the Streamlit app
 # Main function for the Streamlit app
 def train_functions():
     st.title("🚆 Railway Management System")
     st.sidebar.title("🛤️ Train Administrator")
     
-    # Display login or registration form if not authenticated
-    if not is_authenticated():
-        auth_option = st.sidebar.radio("Login or Register", ["Login", "Register"])
-        
-        if auth_option == "Login":
-            st.sidebar.title("Login")
-            username = st.sidebar.text_input("Username")
-            password = st.sidebar.text_input("Password", type="password")
-            if st.sidebar.button("Login"):
-                if login(username, password):
-                    st.session_state['authenticated'] = True
-                    st.success("Login successful")
-                else:
-                    st.error("Invalid username or password")
-        
-        elif auth_option == "Register":
-            st.sidebar.title("Register")
-            new_username = st.sidebar.text_input("New Username")
-            new_password = st.sidebar.text_input("New Password", type="password")
-            if st.sidebar.button("Register"):
-                if new_username and new_password:
-                    register(new_username, new_password)
-                else:
-                    st.error("Please fill in both fields")
+    # Admin or User selection
+    user_type = st.sidebar.selectbox("Login as:", ["User", "Admin"])
     
-    # Add functionality for authenticated users
-    else:
-        functions = st.sidebar.radio("Select Train Functions", [
-            "Add Train", "View Trains", "Search Train", "Delete Train", "Book Ticket", "Cancel Ticket", "View Seats"])
-        
-        if functions == "Add Train":
-            st.header("🛤️ Add New Train")
-            with st.form(key='new_train_details'):
-                train_number = st.text_input("Train Number")
-                train_name = st.text_input("Train Name")
-                departure_date = st.date_input("📅 Date of Departure")
-                starting_destination = st.text_input("🚉 Starting Destination")
-                ending_destination = st.text_input("🛑 Ending Destination")
-                submitted = st.form_submit_button("Add Train")
-            if submitted and train_name != "" and train_number != '' and starting_destination != "" and ending_destination != "":
-                add_train(train_number, train_name, departure_date,
-                          starting_destination, ending_destination)
-                st.success("✅ Train Added Successfully!")
-        
-        elif functions == "View Trains":
-            st.title("🚆 View All Trains")
-            train_query = c.execute("SELECT * FROM trains")
-            trains = train_query.fetchall()
-
-            if trains:
-                st.header("Available Trains:")
-                st.dataframe(data=trains)
+    if user_type == "Admin":
+        st.sidebar.title("Admin Login")
+        admin_password = st.sidebar.text_input("Admin Password", type="password")
+        if st.sidebar.button("Login as Admin"):
+            if admin_login(admin_password):
+                st.session_state['admin_authenticated'] = True
+                st.success("Admin login successful")
             else:
-                st.error("❌ No trains available in the database.")
+                st.error("Invalid admin password")
         
-        elif functions == "Search Train":
-            st.title("🔍 Train Details Search")
-
-            st.write("🔍 Search by Train Number:")
-            train_number = st.text_input("Enter Train Number:")
-
-            st.write("🔍 Search by Starting and Ending Destination:")
-            starting_destination = st.text_input("Starting Destination:")
-            ending_destination = st.text_input("Ending Destination:")
-
-            if st.button("🔎 Search by Train Number"):
-                if train_number:
-                    train_data = search_train_by_train_number(train_number)
-                    if train_data:
-                        st.header("🚆 Search Result:")
-                        st.table(pd.DataFrame([train_data], columns=[
-                            "Train Number", "Train Name", "Departure Date", "Starting Destination", "Ending Destination"]))
+        if st.session_state.get('admin_authenticated', False):
+            st.title("Admin Panel")
+            st.write("Database Contents:")
+            tables = c.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+            for table_name in tables:
+                st.write(f"Table: {table_name[0]}")
+                table_data = c.execute(f"SELECT * FROM {table_name[0]}").fetchall()
+                if table_data:
+                    df = pd.DataFrame(table_data)
+                    st.dataframe(df)
+                else:
+                    st.write("No data available")
+    else:
+        # Display login or registration form if not authenticated
+        if not is_authenticated():
+            auth_option = st.sidebar.radio("Login or Register", ["Login", "Register"])
+            
+            if auth_option == "Login":
+                st.sidebar.title("Login")
+                username = st.sidebar.text_input("Username")
+                password = st.sidebar.text_input("Password", type="password")
+                if st.sidebar.button("Login"):
+                    if login(username, password):
+                        st.session_state['authenticated'] = True
+                        st.success("Login successful")
                     else:
-                        st.error(f"❌ No train found with the train number: {train_number}")
-
-            if st.button("🔎 Search by Destinations"):
-                if starting_destination and ending_destination:
-                    train_data = search_trains_by_destinations(
-                        starting_destination, ending_destination)
-                    if train_data:
-                        st.header("🚆 Search Results:")
-                        df = pd.DataFrame(train_data, columns=[
-                            "Train Number", "Train Name", "Departure Date", "Starting Destination", "Ending Destination"])
-                        st.table(df)
+                        st.error("Invalid username or password")
+            
+            elif auth_option == "Register":
+                st.sidebar.title("Register")
+                new_username = st.sidebar.text_input("New Username")
+                new_password = st.sidebar.text_input("New Password", type="password")
+                if st.sidebar.button("Register"):
+                    if new_username and new_password:
+                        register(new_username, new_password)
                     else:
-                        st.error(f"❌ No trains found for the given source and destination.")
+                        st.error("Please fill in both fields")
         
-        elif functions == "Delete Train":
-            st.title("🗑️ Delete Train")
-            train_number = st.text_input("Enter Train Number to delete:")
-            departure_date = st.date_input("Enter the Train Departure date")
-            if st.button("🗑️ Delete Train"):
-                if train_number:
-                    c.execute(f"DROP TABLE IF EXISTS seats_{train_number}")
-                    delete_train(train_number, departure_date)
-        
-        elif functions == "Book Ticket":
-            st.title("🎫 Book Train Ticket")
-            train_number = st.text_input("Enter Train Number:")
-            seat_type = st.selectbox(
-                "Seat Type", ["Aisle", "Middle", "Window"], index=0)
-            passenger_name = st.text_input("Passenger Name")
-            passenger_age = st.number_input("Passenger Age", min_value=1)
-            passenger_gender = st.selectbox(
-                "Passenger Gender", ["Male", "Female", "Other"], index=0)
-
-            if st.button("🎟️ Book Ticket"):
-                if train_number and passenger_name and passenger_age and passenger_gender:
-                    book_ticket(train_number, passenger_name,
-                                passenger_age, passenger_gender, seat_type)
-        
-        elif functions == "Cancel Ticket":
-            st.title("❌ Cancel Ticket")
-            train_number = st.text_input("Enter Train Number:")
-            seat_number = st.number_input("Enter Seat Number", min_value=1)
-            if st.button("❌ Cancel Ticket"):
-                if train_number and seat_number:
-                    cancel_tickets(train_number, seat_number)
-        
-        elif functions == "View Seats":
-            st.title("💺 View Seats")
-            train_number = st.text_input("Enter Train Number:")
-            if st.button("Submit"):
-                if train_number:
-                    view_seats(train_number)
-                    
+        # Add functionality for authenticated users
+        if is_authenticated():
+            functions = st.sidebar.radio("Select Train Functions", [
+                "Add Train", "View Trains", "Search Train", "Delete Train", "Book Ticket", "Cancel Ticket", "View Seats"])
+            
+            if functions == "Add Train":
+                st.header("🛤️ Add New Train")
+                with st.form(key='new_train_details'):
+                    train_number = st.text_input("Train Number")
+                    train_name = st.text_input("Train Name")
+                    departure_date = st.date_input("📅 Date of Departure")
+                    starting_destination = st.text_input("🚉 Starting Destination")
+                    ending_destination = st.text_input("🛑 Ending Destination")
+                    submitted = st.form_submit_button("Add Train")
+                if submitted and train_name != "" and train_number != '' and starting_destination != "" and ending_destination != "":
+                    add_train(train_number, train_name, departure_date,
+                              starting_destination, ending_destination)
+                    st.success("✅ Train Added Successfully!")
+            
+            elif functions == "View Trains":
+                st.title("🚆 View All Trains")
+                train_query = c.execute("SELECT * FROM trains")
+                trains = train_query.fetchall()
+    
+                if trains:
+                    st.header("Available Trains:")
+                    st.dataframe(data=trains)
+                else:
+                    st.error("❌ No trains available in the database.")
+            
+            elif functions == "Search Train":
+                st.title("🔍 Train Details Search")
+    
+                st.write("🔍 Search by Train Number:")
+                train_number = st.text_input("Enter Train Number:")
+    
+                st.write("🔍 Search by Starting and Ending Destination:")
+                starting_destination = st.text_input("Starting Destination:")
+                ending_destination = st.text_input("Ending Destination:")
+    
+                if st.button("🔎 Search by Train Number"):
+                    if train_number:
+                        train_data = search_train_by_train_number(train_number)
+                        if train_data:
+                            st.header("🚆 Search Result:")
+                            st.table(pd.DataFrame([train_data], columns=[
+                                "Train Number", "Train Name", "Departure Date", "Starting Destination", "Ending Destination"]))
+                        else:
+                            st.error(f"❌ No train found with the train number: {train_number}")
+    
+                if st.button("🔎 Search by Destinations"):
+                    if starting_destination and ending_destination:
+                        train_data = search_trains_by_destinations(
+                            starting_destination, ending_destination)
+                        if train_data:
+                            st.header("🚆 Search Results:")
+                            df = pd.DataFrame(train_data, columns=[
+                                "Train Number", "Train Name", "Departure Date", "Starting Destination", "Ending Destination"])
+                            st.table(df)
+                        else:
+                            st.error(f"❌ No trains found for the given source and destination.")
+            
+            elif functions == "Delete Train":
+                st.title("🗑️ Delete Train")
+                train_number = st.text_input("Enter Train Number to delete:")
+                departure_date = st.date_input("Enter the Train Departure date")
+                if st.button("🗑️ Delete Train"):
+                    if train_number:
+                        c.execute(f"DROP TABLE IF EXISTS seats_{train_number}")
+                        delete_train(train_number, departure_date)
+            
+            elif functions == "Book Ticket":
+                st.title("🎫 Book Train Ticket")
+                train_number = st.text_input("Enter Train Number:")
+                seat_type = st.selectbox(
+                    "Seat Type", ["Aisle", "Middle", "Window"], index=0)
+                passenger_name = st.text_input("Passenger Name")
+                passenger_age = st.number_input("Passenger Age", min_value=1)
+                passenger_gender = st.selectbox(
+                    "Passenger Gender", ["Male", "Female", "Other"], index=0)
+    
+                if st.button("🎟️ Book Ticket"):
+                    if train_number and passenger_name and passenger_age and passenger_gender:
+                        book_ticket(train_number, passenger_name,
+                                    passenger_age, passenger_gender, seat_type)
+            
+            elif functions == "Cancel Ticket":
+                st.title("❌ Cancel Ticket")
+                train_number = st.text_input("Enter Train Number:")
+                seat_number = st.number_input("Enter Seat Number", min_value=1)
+                if st.button("❌ Cancel Ticket"):
+                    if train_number and seat_number:
+                        cancel_tickets(train_number, seat_number)
+            
+            elif functions == "View Seats":
+                st.title("💺 View Seats")
+                train_number = st.text_input("Enter Train Number:")
+                if st.button("Submit"):
+                    if train_number:
+                        view_seats(train_number)
 
 # Run the app
 if __name__ == "__main__":
