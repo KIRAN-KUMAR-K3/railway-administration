@@ -204,7 +204,7 @@ def train_functions():
         if st.sidebar.button("Login as Admin"):
             if admin_login(admin_password):
                 st.session_state['admin_authenticated'] = True
-                st.success("Admin login successful")
+                # st.success("Admin login successful")
             else:
                 st.error("Invalid admin password")
         
