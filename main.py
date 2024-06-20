@@ -1,6 +1,7 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+import time
 
 # Database connection
 conn = sqlite3.connect('railway_system.db')
@@ -33,12 +34,17 @@ def login(username, password):
             c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
             user = c.fetchone()
             if user:
+                st.session_state['authenticated'] = True
+                st.success("Login successful")
+                time.sleep(1)  # Wait for 1 second
+                st.experimental_rerun()  # Rerun the app to show authenticated content
                 return True
             else:
                 return False
     except sqlite3.OperationalError as e:
         st.error(f"Database Error: {e}")
         return False
+
 
 # Admin login section
 def admin_login(password):
