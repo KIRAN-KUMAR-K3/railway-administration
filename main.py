@@ -82,7 +82,6 @@ st.sidebar.image(img,width=250)
 img = Image.open("images/img2.png")
 st.image(img,width=650)
 
-
 # Function to add a new train
 def add_train(train_number, train_name, departure_date, starting_destination, ending_destination):
     # Ensure only authenticated users can add trains
@@ -128,7 +127,6 @@ def create_seat_table(train_number):
         c.execute(f'''INSERT INTO seats_{train_number}(seat_number, seat_type, booked, passenger_name, passenger_age, passenger_gender) VALUES (?,?,?,?,?,?);''', (
             i, val, 0, "", "", ""))
     conn.commit()
-
 # Function to categorize seat type
 def categorize_seat(seat_number):
     if (seat_number % 10) in [0, 4, 5, 9]:
@@ -353,7 +351,6 @@ def train_functions():
                 if train_number:
                     view_seats(train_number)
                     
-
 # Run the app
 if __name__ == "__main__":
     train_functions()
