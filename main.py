@@ -44,8 +44,7 @@ def login(username, password):
     except sqlite3.OperationalError as e:
         st.error(f"Database Error: {e}")
         return False
-
-
+        
 # Admin login section
 def admin_login(password):
     if password == 'admin@123':
